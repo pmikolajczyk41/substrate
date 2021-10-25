@@ -15,6 +15,7 @@ use frame_support::{
 	traits::{Currency, ExistenceRequirement, Get, Imbalance, OnUnbalanced, WithdrawReasons},
 	unsigned::TransactionValidityError,
 };
+use log::info;
 
 type NegativeImbalanceOf<C, T> =
 	<C as Currency<<T as frame_system::Config>::AccountId>>::NegativeImbalance;
@@ -107,6 +108,10 @@ where
 		} else {
 			WithdrawReasons::TRANSACTION_PAYMENT | WithdrawReasons::TIP
 		};
+
+		info!(target: "afa", "Withdraw :: {:?} | {:?} | {:?}",
+				fee, tip, withdraw_reason);
+
 
 		match C::withdraw(who, fee, withdraw_reason, ExistenceRequirement::KeepAlive) {
 			Ok(imbalance) => Ok(Some(imbalance)),

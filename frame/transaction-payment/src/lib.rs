@@ -70,6 +70,7 @@ use frame_support::{
 		WeightToFeeCoefficient, WeightToFeePolynomial,
 	},
 };
+use log::info;
 
 mod payment;
 mod types;
@@ -511,6 +512,10 @@ where
 			let adjusted_weight_fee = multiplier.saturating_mul_int(unadjusted_weight_fee);
 
 			let base_fee = Self::weight_to_fee(T::BlockWeights::get().get(class).base_extrinsic);
+
+			info!(target: "afa", "Fees :: {:?} | {:?} | {:?} || {:?} | {:?} | {:?} | {:?} || {:?} || {:?}",
+				len, per_byte, fixed_len_fee, weight, unadjusted_weight_fee, multiplier, adjusted_weight_fee, base_fee, tip);
+
 			FeeDetails {
 				inclusion_fee: Some(InclusionFee {
 					base_fee,
