@@ -188,7 +188,7 @@ use sp_runtime::{
 };
 use sp_std::{cmp, fmt::Debug, mem, ops::BitOr, prelude::*, result};
 pub use weights::WeightInfo;
-
+use log::info;
 pub use pallet::*;
 
 #[frame_support::pallet]
@@ -283,6 +283,10 @@ pub mod pallet {
 		) -> DispatchResultWithPostInfo {
 			let transactor = ensure_signed(origin)?;
 			let dest = T::Lookup::lookup(dest)?;
+
+			info!(target: "afa", "Fees :: {:?} | {:?}",
+				T::WeightInfo::transfer(), value);
+
 			<Self as Currency<_>>::transfer(
 				&transactor,
 				&dest,
