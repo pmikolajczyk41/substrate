@@ -32,6 +32,7 @@ use sp_state_machine::{
 	StateMachine, StorageProof,
 };
 use std::{cell::RefCell, panic::UnwindSafe, result, sync::Arc};
+use backtrace::Backtrace;
 
 /// Call executor that executes methods locally, querying all required
 /// data from local backend.
@@ -101,12 +102,22 @@ where
 			d
 		} else if let Some(s) = self.wasm_substitutes.get(spec, onchain_code.heap_pages, id) {
 			log::debug!(target: "wasm_substitutes", "Using WASM substitute for block {:?}", id);
+			log::debug!(
+				target: "wasm_substitutes",
+				"Stack trace\n{:?}",
+				Backtrace::new()
+			);
 			s
 		} else {
 			log::debug!(
 				target: "wasm_overrides",
 				"No WASM override available for block {}, using onchain code",
 				id
+			);
+			log::debug!(
+				target: "wasm_overrides",
+				"Stack trace\n{:?}",
+				Backtrace::new()
 			);
 			onchain_code
 		};

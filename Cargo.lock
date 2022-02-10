@@ -8450,6 +8450,7 @@ version = "0.10.0-dev"
 dependencies = [
  "async-std",
  "async-trait",
+ "backtrace",
  "directories",
  "exit-future",
  "futures 0.3.16",
