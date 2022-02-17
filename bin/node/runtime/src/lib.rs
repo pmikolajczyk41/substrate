@@ -1352,41 +1352,51 @@ mod mmr {
 	pub type Hashing = <Runtime as pallet_mmr::Config>::Hashing;
 }
 
+use backtrace::Backtrace;
+
 impl_runtime_apis! {
 	impl sp_api::Core<Block> for Runtime {
 		fn version() -> RuntimeVersion {
+			log::debug!(target: "runtime_investigation", "Stack trace\n{:?}", Backtrace::new());
 			VERSION
 		}
 
 		fn execute_block(block: Block) {
+			log::debug!(target: "runtime_investigation", "Stack trace\n{:?}", Backtrace::new());
 			Executive::execute_block(block);
 		}
 
 		fn initialize_block(header: &<Block as BlockT>::Header) {
+			log::debug!(target: "runtime_investigation", "Stack trace\n{:?}", Backtrace::new());
 			Executive::initialize_block(header)
 		}
 	}
 
 	impl sp_api::Metadata<Block> for Runtime {
 		fn metadata() -> OpaqueMetadata {
+			log::debug!(target: "runtime_investigation", "Stack trace\n{:?}", Backtrace::new());
 			OpaqueMetadata::new(Runtime::metadata().into())
 		}
 	}
 
 	impl sp_block_builder::BlockBuilder<Block> for Runtime {
 		fn apply_extrinsic(extrinsic: <Block as BlockT>::Extrinsic) -> ApplyExtrinsicResult {
+			log::debug!(target: "runtime_investigation", "Stack trace\n{:?}", Backtrace::new());
 			Executive::apply_extrinsic(extrinsic)
 		}
 
 		fn finalize_block() -> <Block as BlockT>::Header {
+			log::debug!(target: "runtime_investigation", "Stack trace\n{:?}", Backtrace::new());
 			Executive::finalize_block()
 		}
 
 		fn inherent_extrinsics(data: InherentData) -> Vec<<Block as BlockT>::Extrinsic> {
+			log::debug!(target: "runtime_investigation", "Stack trace\n{:?}", Backtrace::new());
 			data.create_extrinsics()
 		}
 
 		fn check_inherents(block: Block, data: InherentData) -> CheckInherentsResult {
+			log::debug!(target: "runtime_investigation", "Stack trace\n{:?}", Backtrace::new());
 			data.check_extrinsics(&block)
 		}
 	}
@@ -1397,22 +1407,26 @@ impl_runtime_apis! {
 			tx: <Block as BlockT>::Extrinsic,
 			block_hash: <Block as BlockT>::Hash,
 		) -> TransactionValidity {
+			log::debug!(target: "runtime_investigation", "Stack trace\n{:?}", Backtrace::new());
 			Executive::validate_transaction(source, tx, block_hash)
 		}
 	}
 
 	impl sp_offchain::OffchainWorkerApi<Block> for Runtime {
 		fn offchain_worker(header: &<Block as BlockT>::Header) {
+			log::debug!(target: "runtime_investigation", "Stack trace\n{:?}", Backtrace::new());
 			Executive::offchain_worker(header)
 		}
 	}
 
 	impl fg_primitives::GrandpaApi<Block> for Runtime {
 		fn grandpa_authorities() -> GrandpaAuthorityList {
+			log::debug!(target: "runtime_investigation", "Stack trace\n{:?}", Backtrace::new());
 			Grandpa::grandpa_authorities()
 		}
 
 		fn current_set_id() -> fg_primitives::SetId {
+			log::debug!(target: "runtime_investigation", "Stack trace\n{:?}", Backtrace::new());
 			Grandpa::current_set_id()
 		}
 
@@ -1423,6 +1437,7 @@ impl_runtime_apis! {
 			>,
 			key_owner_proof: fg_primitives::OpaqueKeyOwnershipProof,
 		) -> Option<()> {
+			log::debug!(target: "runtime_investigation", "Stack trace\n{:?}", Backtrace::new());
 			let key_owner_proof = key_owner_proof.decode()?;
 
 			Grandpa::submit_unsigned_equivocation_report(
@@ -1435,6 +1450,7 @@ impl_runtime_apis! {
 			_set_id: fg_primitives::SetId,
 			authority_id: GrandpaId,
 		) -> Option<fg_primitives::OpaqueKeyOwnershipProof> {
+			log::debug!(target: "runtime_investigation", "Stack trace\n{:?}", Backtrace::new());
 			use codec::Encode;
 
 			Historical::prove((fg_primitives::KEY_TYPE, authority_id))
@@ -1445,6 +1461,7 @@ impl_runtime_apis! {
 
 	impl sp_consensus_babe::BabeApi<Block> for Runtime {
 		fn configuration() -> sp_consensus_babe::BabeGenesisConfiguration {
+			log::debug!(target: "runtime_investigation", "Stack trace\n{:?}", Backtrace::new());
 			// The choice of `c` parameter (where `1 - c` represents the
 			// probability of a slot being empty), is done in accordance to the
 			// slot duration and expected target block time, for safely
@@ -1461,14 +1478,17 @@ impl_runtime_apis! {
 		}
 
 		fn current_epoch_start() -> sp_consensus_babe::Slot {
+			log::debug!(target: "runtime_investigation", "Stack trace\n{:?}", Backtrace::new());
 			Babe::current_epoch_start()
 		}
 
 		fn current_epoch() -> sp_consensus_babe::Epoch {
+			log::debug!(target: "runtime_investigation", "Stack trace\n{:?}", Backtrace::new());
 			Babe::current_epoch()
 		}
 
 		fn next_epoch() -> sp_consensus_babe::Epoch {
+			log::debug!(target: "runtime_investigation", "Stack trace\n{:?}", Backtrace::new());
 			Babe::next_epoch()
 		}
 
@@ -1476,6 +1496,7 @@ impl_runtime_apis! {
 			_slot: sp_consensus_babe::Slot,
 			authority_id: sp_consensus_babe::AuthorityId,
 		) -> Option<sp_consensus_babe::OpaqueKeyOwnershipProof> {
+			log::debug!(target: "runtime_investigation", "Stack trace\n{:?}", Backtrace::new());
 			use codec::Encode;
 
 			Historical::prove((sp_consensus_babe::KEY_TYPE, authority_id))
@@ -1487,6 +1508,7 @@ impl_runtime_apis! {
 			equivocation_proof: sp_consensus_babe::EquivocationProof<<Block as BlockT>::Header>,
 			key_owner_proof: sp_consensus_babe::OpaqueKeyOwnershipProof,
 		) -> Option<()> {
+			log::debug!(target: "runtime_investigation", "Stack trace\n{:?}", Backtrace::new());
 			let key_owner_proof = key_owner_proof.decode()?;
 
 			Babe::submit_unsigned_equivocation_report(
@@ -1498,12 +1520,14 @@ impl_runtime_apis! {
 
 	impl sp_authority_discovery::AuthorityDiscoveryApi<Block> for Runtime {
 		fn authorities() -> Vec<AuthorityDiscoveryId> {
+			log::debug!(target: "runtime_investigation", "Stack trace\n{:?}", Backtrace::new());
 			AuthorityDiscovery::authorities()
 		}
 	}
 
 	impl frame_system_rpc_runtime_api::AccountNonceApi<Block, AccountId, Index> for Runtime {
 		fn account_nonce(account: AccountId) -> Index {
+			log::debug!(target: "runtime_investigation", "Stack trace\n{:?}", Backtrace::new());
 			System::account_nonce(account)
 		}
 	}
@@ -1520,6 +1544,7 @@ impl_runtime_apis! {
 			gas_limit: u64,
 			input_data: Vec<u8>,
 		) -> pallet_contracts_primitives::ContractExecResult {
+			log::debug!(target: "runtime_investigation", "Stack trace\n{:?}", Backtrace::new());
 			Contracts::bare_call(origin, dest, value, gas_limit, input_data, true)
 		}
 
@@ -1532,6 +1557,7 @@ impl_runtime_apis! {
 			salt: Vec<u8>,
 		) -> pallet_contracts_primitives::ContractInstantiateResult<AccountId>
 		{
+			log::debug!(target: "runtime_investigation", "Stack trace\n{:?}", Backtrace::new());
 			Contracts::bare_instantiate(origin, endowment, gas_limit, code, data, salt, true)
 		}
 
@@ -1539,6 +1565,7 @@ impl_runtime_apis! {
 			address: AccountId,
 			key: [u8; 32],
 		) -> pallet_contracts_primitives::GetStorageResult {
+			log::debug!(target: "runtime_investigation", "Stack trace\n{:?}", Backtrace::new());
 			Contracts::get_storage(address, key)
 		}
 	}
@@ -1548,9 +1575,11 @@ impl_runtime_apis! {
 		Balance,
 	> for Runtime {
 		fn query_info(uxt: <Block as BlockT>::Extrinsic, len: u32) -> RuntimeDispatchInfo<Balance> {
+			log::debug!(target: "runtime_investigation", "Stack trace\n{:?}", Backtrace::new());
 			TransactionPayment::query_info(uxt, len)
 		}
 		fn query_fee_details(uxt: <Block as BlockT>::Extrinsic, len: u32) -> FeeDetails<Balance> {
+			log::debug!(target: "runtime_investigation", "Stack trace\n{:?}", Backtrace::new());
 			TransactionPayment::query_fee_details(uxt, len)
 		}
 	}
@@ -1562,6 +1591,7 @@ impl_runtime_apis! {
 		fn generate_proof(leaf_index: pallet_mmr::primitives::LeafIndex)
 			-> Result<(mmr::EncodableOpaqueLeaf, mmr::Proof<mmr::Hash>), mmr::Error>
 		{
+			log::debug!(target: "runtime_investigation", "Stack trace\n{:?}", Backtrace::new());
 			Mmr::generate_proof(leaf_index)
 				.map(|(leaf, proof)| (mmr::EncodableOpaqueLeaf::from_leaf(&leaf), proof))
 		}
@@ -1569,6 +1599,7 @@ impl_runtime_apis! {
 		fn verify_proof(leaf: mmr::EncodableOpaqueLeaf, proof: mmr::Proof<mmr::Hash>)
 			-> Result<(), mmr::Error>
 		{
+			log::debug!(target: "runtime_investigation", "Stack trace\n{:?}", Backtrace::new());
 			let leaf: mmr::Leaf = leaf
 				.into_opaque_leaf()
 				.try_decode()
@@ -1581,6 +1612,7 @@ impl_runtime_apis! {
 			leaf: mmr::EncodableOpaqueLeaf,
 			proof: mmr::Proof<mmr::Hash>
 		) -> Result<(), mmr::Error> {
+			log::debug!(target: "runtime_investigation", "Stack trace\n{:?}", Backtrace::new());
 			let node = mmr::DataOrHash::Data(leaf.into_opaque_leaf());
 			pallet_mmr::verify_leaf_proof::<mmr::Hashing, _>(root, node, proof)
 		}
@@ -1588,12 +1620,14 @@ impl_runtime_apis! {
 
 	impl sp_session::SessionKeys<Block> for Runtime {
 		fn generate_session_keys(seed: Option<Vec<u8>>) -> Vec<u8> {
+			log::debug!(target: "runtime_investigation", "Stack trace\n{:?}", Backtrace::new());
 			SessionKeys::generate(seed)
 		}
 
 		fn decode_session_keys(
 			encoded: Vec<u8>,
 		) -> Option<Vec<(Vec<u8>, KeyTypeId)>> {
+			log::debug!(target: "runtime_investigation", "Stack trace\n{:?}", Backtrace::new());
 			SessionKeys::decode_into_raw_public_keys(&encoded)
 		}
 	}
@@ -1601,6 +1635,7 @@ impl_runtime_apis! {
 	#[cfg(feature = "try-runtime")]
 	impl frame_try_runtime::TryRuntime<Block> for Runtime {
 		fn on_runtime_upgrade() -> (Weight, Weight) {
+			log::debug!(target: "runtime_investigation", "Stack trace\n{:?}", Backtrace::new());
 			// NOTE: intentional unwrap: we don't want to propagate the error backwards, and want to
 			// have a backtrace here. If any of the pre/post migration checks fail, we shall stop
 			// right here and right now.
@@ -1609,6 +1644,7 @@ impl_runtime_apis! {
 		}
 
 		fn execute_block_no_check(block: Block) -> Weight {
+			log::debug!(target: "runtime_investigation", "Stack trace\n{:?}", Backtrace::new());
 			Executive::execute_block_no_check(block)
 		}
 	}
