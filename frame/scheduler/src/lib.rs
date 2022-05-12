@@ -296,11 +296,15 @@ pub mod pallet {
 		fn on_initialize(now: T::BlockNumber) -> Weight {
 			let limit = T::MaximumWeight::get();
 
+			log::info!(target: "scheduling", "Okay, it's block {:?}. We have {:?} items in Agenda.", now, Agenda::<T>::decode_len(now));
+
 			let mut queued = Agenda::<T>::take(now)
 				.into_iter()
 				.enumerate()
 				.filter_map(|(index, s)| Some((index as u32, s?)))
 				.collect::<Vec<_>>();
+
+			log::info!(target: "scheduling", "We have {} items queued", queued.len());
 
 			if queued.len() as u32 > T::MaxScheduledPerBlock::get() {
 				log::warn!(
@@ -316,8 +320,11 @@ pub mod pallet {
 
 			let mut total_weight: Weight = T::WeightInfo::on_initialize(0);
 			for (order, (index, mut s)) in queued.into_iter().enumerate() {
+				log::info!(target: "scheduling", "Removing from lookup");
+
 				let named = if let Some(ref id) = s.maybe_id {
 					Lookup::<T>::remove(id);
+					log::info!(target: "scheduling", "Removed");
 					true
 				} else {
 					false
