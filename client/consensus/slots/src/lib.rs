@@ -234,6 +234,8 @@ pub trait SimpleSlotWorker<B: BlockT> {
 
 		let authorities_len = self.authorities_len(&epoch_data);
 
+		warn!(target: logging_target, "Checkpoint 1 {} {} {} {}", authorities_len, self.force_authoring(), self.sync_oracle().is_offline(), authorities_len.map(|a| a > 1).unwrap_or(false),);
+
 		if !self.force_authoring() &&
 			self.sync_oracle().is_offline() &&
 			authorities_len.map(|a| a > 1).unwrap_or(false)
@@ -249,7 +251,11 @@ pub trait SimpleSlotWorker<B: BlockT> {
 			return None
 		}
 
+		warn!(target: logging_target, "Checkpoint 2 {:?} {:?} {:?}", &slot_info.chain_head, slot, &epoch_data,);
+
 		let claim = self.claim_slot(&slot_info.chain_head, slot, &epoch_data).await?;
+
+		warn!(target: logging_target, "Checkpoint 3 {:?}", self.should_backoff(slot, &slot_info.chain_head),);
 
 		if self.should_backoff(slot, &slot_info.chain_head) {
 			return None
