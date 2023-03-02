@@ -10151,7 +10151,7 @@ dependencies = [
  "merlin",
  "parity-scale-codec",
  "parking_lot 0.12.1",
- "rand 0.7.3",
+ "rand 0.8.5",
  "rand_chacha 0.2.2",
  "schnorrkel",
  "serde",
